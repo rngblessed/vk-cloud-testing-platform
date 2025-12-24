@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платформа тестирования</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Платформа онлайн-тестирования</h1>
+        
+        <!-- Секция авторизации -->
+        <div id="auth-section">
+            <h2>Вход в систему</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="login-email" placeholder="example@mail.com">
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="login-password" placeholder="••••••">
+            </div>
+            <button onclick="login()">Войти</button>
+            <div id="auth-error" class="error hidden"></div>
+            <p style="text-align: center; margin-top: 20px;">
+                Нет аккаунта? <a onclick="showRegister()">Зарегистрироваться</a>
+            </p>
+        </div>
+
+        <!-- Секция регистрации -->
+        <div id="register-section" class="hidden">
+            <h2>Регистрация</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="register-email" placeholder="example@mail.com">
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="register-password" placeholder="••••••">
+            </div>
+            <div class="form-group">
+                <label>Роль</label>
+                <select id="register-role">
+                    <option value="student">Студент</option>
+                    <option value="teacher">Преподаватель</option>
+                </select>
+            </div>
+            <button onclick="register()">Зарегистрироваться</button>
+            <div id="register-error" class="error hidden"></div>
+            <p style="text-align: center; margin-top: 20px;">
+                Уже есть аккаунт? <a onclick="showLogin()">Войти</a>
+            </p>
+        </div>
+
+        <!-- Секция списка тестов -->
+        <div id="tests-section" class="hidden">
+            <div class="user-info">
+                <span id="user-email"></span> | 
+                <a onclick="logout()">Выйти</a>
+            </div>
+            <h2>Доступные тесты</h2>
+            <div id="tests-list"></div>
+            <button onclick="showCreateTest()" id="create-test-btn" class="hidden">+ Создать тест</button>
+        </div>
+
+        <!-- Секция создания теста -->
+        <div id="create-test-section" class="hidden">
+            <h2>Создать новый тест</h2>
+            <div class="form-group">
+                <label>Название теста</label>
+                <input type="text" id="test-title" placeholder="Математика. Базовый уровень">
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <input type="text" id="test-description" placeholder="Тест по основам математики">
+            </div>
+            <div class="form-group">
+                <label>Время на тест (минуты)</label>
+                <input type="number" id="test-time" placeholder="30" value="30">
+            </div>
+            <button onclick="createTest()">Создать тест</button>
+            <button onclick="showTests()" class="secondary">Отмена</button>
+            <div id="create-error" class="error hidden"></div>
+        </div>
+
+        <!-- Секция добавления вопросов -->
+        <div id="add-questions-section" class="hidden">
+            <h2 id="current-test-title"></h2>
+            <p style="color: #666; margin-bottom: 20px;">Добавьте вопросы к тесту</p>
+            
+            <div class="form-group">
+                <label>Текст вопроса</label>
+                <input type="text" id="question-text" placeholder="Сколько будет 2+2?">
+            </div>
+            
+            <div class="form-group">
+                <label>Изображение к вопросу (необязательно)</label>
+                <input type="file" id="question-image" accept="image/*">
+                <div id="image-preview" style="margin-top: 10px;"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>Баллы за вопрос</label>
+                <input type="number" id="question-points" value="1" min="1">
+            </div>
+            
+            <div class="form-group">
+                <label>Варианты ответов</label>
+                <div id="answer-options">
+                    <div class="answer-option-input">
+                        <input type="text" placeholder="Вариант ответа 1" data-option="0">
+                        <input type="checkbox" data-option="0"> Правильный
+                    </div>
+                    <div class="answer-option-input">
+                        <input type="text" placeholder="Вариант ответа 2" data-option="1">
+                        <input type="checkbox" data-option="1"> Правильный
+                    </div>
+                    <div class="answer-option-input">
+                        <input type="text" placeholder="Вариант ответа 3" data-option="2">
+                        <input type="checkbox" data-option="2"> Правильный
+                    </div>
+                    <div class="answer-option-input">
+                        <input type="text" placeholder="Вариант ответа 4" data-option="3">
+                        <input type="checkbox" data-option="3"> Правильный
+                    </div>
+                </div>
+                <button onclick="addAnswerOptionInput()" class="secondary" style="margin-top: 10px; width: auto; padding: 8px 16px;">+ Добавить вариант</button>
+            </div>
+            
+            <button onclick="addQuestionToTest()">Добавить вопрос</button>
+            <button onclick="finishAddingQuestions()" class="secondary">Завершить создание теста</button>
+            <div id="questions-added-count" style="margin-top: 10px; color: #27ae60;"></div>
+            <div id="question-error" class="error hidden"></div>
+        </div>
+
+        <!-- Секция прохождения теста -->
+        <div id="take-test-section" class="hidden">
+            <h2 id="take-test-title"></h2>
+            <div id="test-questions-container"></div>
+            <button onclick="submitTest()">Отправить ответы</button>
+            <button onclick="showTests()" class="secondary">Отмена</button>
+            <div id="test-error" class="error hidden"></div>
+        </div>
+
+        <!-- Секция результатов -->
+        <div id="results-section" class="hidden">
+            <h2>Результаты теста</h2>
+            <div id="result-content"></div>
+            <button onclick="showTests()">Вернуться к тестам</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
