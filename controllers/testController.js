@@ -9,7 +9,6 @@ const pool = new Pool({
   database: process.env.DB_NAME
 });
 
-// Получить все тесты
 exports.getAllTests = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM tests ORDER BY created_at DESC');
@@ -19,7 +18,6 @@ exports.getAllTests = async (req, res) => {
   }
 };
 
-// Создать тест (только учителя)
 exports.createTest = async (req, res) => {
   try {
     const { title, description, time_limit } = req.body;
@@ -33,7 +31,6 @@ exports.createTest = async (req, res) => {
   }
 };
 
-// Получить тест по ID с вопросами
 exports.getTestById = async (req, res) => {
   try {
     const testId = req.params.id;
@@ -46,13 +43,11 @@ exports.getTestById = async (req, res) => {
   }
 };
 
-// Удалить тест
 exports.deleteTest = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
-    
-    // Проверить что тест принадлежит преподавателю
+ 
     const testCheck = await pool.query(
       'SELECT created_by FROM tests WHERE id = $1',
       [id]
@@ -61,12 +56,7 @@ exports.deleteTest = async (req, res) => {
     if (testCheck.rows.length === 0) {
       return res.status(404).json({ error: 'Тест не найден' });
     }
-    /*
-    if (testCheck.rows[0].created_by !== userId) {
-      return res.status(403).json({ error: 'Нет прав на удаление этого теста' });
-    }
-    */
-    // Удалить тест (каскадное удаление вопросов и вариантов через ON DELETE CASCADE)
+
     await pool.query('DELETE FROM tests WHERE id = $1', [id]);
     
     logger.info(`Test ${id} deleted by user ${userId}`);
